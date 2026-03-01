@@ -2,81 +2,67 @@
 
 ## Quick reference
 
-- Quality gate: `npm run ci`
+- Quality gate: `npm run ci` (run before claiming work is done)
 - Tests: `npm run test` or `npm run test:watch`
 - Lint fix: `npm run lint:fix && npm run format`
 
-## Non-negotiables
+## Rules
 
-- Run `npm run ci` before claiming any work is done.
 - Domain code (`src/domain/`) must have zero external dependencies.
-  No HTTP, no database, no framework imports. Only other domain code.
-- All domain identity types use branded primitives from `src/domain/primitives/`.
-- No inline ESLint suppression (`// eslint-disable`). If a rule conflicts with
-  your design, fix the code or add a project-level override in `eslint.config.mjs`
-  with a comment explaining why.
-- No `any` types. No `@ts-ignore` without a description of at least 5 characters.
-- Every public API must have a boundary test (types + behaviour).
+- All identity types use branded primitives from `src/domain/primitives/`.
+- No inline `// eslint-disable`. Override in `eslint.config.mjs` with a comment.
+- No `any`. No `@ts-ignore` without a 5+ char description.
+- Every public API must have a boundary test.
+- Do not modify ESLint, Prettier, TypeScript, Vitest, or dependency-cruiser configs to weaken rules.
 
-## Architecture layers (enforced by dependency-cruiser)
+## Enforced caps (ESLint)
 
-```
-src/domain/          -- entities, value objects, domain events (no HTTP/DB)
-src/application/     -- use cases, orchestration, ports (interfaces)
-src/infrastructure/  -- adapters, external integrations, DB, queues
-src/presentation/    -- HTTP handlers, CLI, UI
-```
+- Complexity: 10 | Cognitive complexity: 15
+- Max depth: 4 | Max params: 4
+- Max lines/function: 80 | Max lines/file: 350
+- Coverage: 90% statements/functions/lines global, 85% branches
 
-Dependencies flow inward only:
+## Architecture (DDD, layers optional)
 
-- domain depends on nothing
-- application depends on domain
-- infrastructure depends on domain + application
-- presentation depends on domain + application + infrastructure
+Layers are created on demand -- not every project needs all four.
+Dependency-cruiser enforces inward-only flow when layers exist.
 
-## How to add a feature
+| Layer          | Path                  | May depend on                       |
+| -------------- | --------------------- | ----------------------------------- |
+| Domain         | `src/domain/`         | nothing                             |
+| Application    | `src/application/`    | domain                              |
+| Infrastructure | `src/infrastructure/` | domain, application                 |
+| Presentation   | `src/presentation/`   | domain, application, infrastructure |
 
-1. Start in `src/domain/` -- define the entity, value object, or aggregate.
-   Use branded primitives for all IDs.
-2. Define the port (interface) in `src/application/ports/`.
-3. Write the use case in `src/application/` -- it depends only on ports and domain.
-4. Implement the adapter in `src/infrastructure/adapters/`.
-   Start with an in-memory implementation for testing.
-5. Wire it in `src/presentation/` (HTTP route, CLI command, etc.).
-6. Write tests at every layer. Domain logic should be exhaustively tested.
+## Adding a feature
 
-## Code quality caps (enforced by ESLint)
+1. Domain -- entity/value object with branded IDs
+2. Port -- interface in `src/application/ports/`
+3. Use case -- async function taking command + port(s)
+4. Adapter -- in-memory first, in `src/infrastructure/adapters/`
+5. Entry point -- wire in `src/presentation/`
+6. Tests at every layer; run `npm run ci`
 
-- Max complexity: 10
-- Max depth: 4
-- Max lines per function: 80 (excluding blanks/comments)
-- Max lines per file: 350 (excluding blanks/comments)
-- Max parameters: 4
-- Max cognitive complexity: 15
+## Naming
 
-If you hit these limits, decompose. Extract a helper, split the module,
-or introduce a new abstraction. These limits exist to keep code reviewable
-by both humans and AI.
+- Commands: `CreateUser`, `ActivateSubscription` (imperative)
+- Events: `UserCreated`, `SubscriptionActivated` (past tense)
+- Primitives: branded types (`UserId`, `OrderId`)
+- Use cases: `{verb}-{noun}-use-case.ts`
+- Tests: colocated `*.test.ts`
 
-## Naming conventions
+## Testing
 
-- Commands (imperative): `CreateUser`, `ActivateSubscription`
-- Events (past tense): `UserCreated`, `SubscriptionActivated`
-- Domain primitives: branded types (`UserId`, `OrderId`, etc.)
-- Use cases: `{verb}-{noun}-use-case.ts` (e.g., `create-user-use-case.ts`)
-- Tests: colocated, same name with `.test.ts` suffix
+- Vitest, colocated tests, coverage thresholds per layer
+- In-memory adapters for domain/application tests
+- Mutation testing: `npm run mutation` (Stryker)
 
-## Testing strategy
+## Work tracking (Beads)
 
-- Unit tests: colocated `*.test.ts` files, run with Vitest
-- Coverage thresholds enforced per architectural layer (see vitest.config.ts)
-- Mutation testing: run `npm run mutation` (Stryker) for nightly/deep checks
-- In-memory adapters for domain/application testing (no external dependencies)
-
-## When working with AI assistants
-
-- Always run `npm run ci` after implementing changes
-- Prefer small, focused changes that pass all quality gates
-- Do not bypass quality gates with `--no-verify` or `SKIP_CI`
-- Do not modify ESLint/Prettier/TypeScript configs to weaken rules
-- If a test is hard to write, the code is probably too complex -- refactor first
+- Use `bd` for all work tracking; commit `.beads/issues.jsonl` with code changes.
+- Autonomous loop: read `AGENT_LOOP.md` for the full pick -> claim -> implement -> finish cycle.
+- Core commands:
+  - `npm run bd -- issue next --json` -- show unblocked issues
+  - `npm run bd -- issue start <id> --by "<name>"` -- claim + create worktree
+  - `npm run bd -- issue finish <id>` -- merge + close + auto-push (from repo root)
+- Do not modify `AGENT_LOOP.md` or `.beads/issues.jsonl` manually.

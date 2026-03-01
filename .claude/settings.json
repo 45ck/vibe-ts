@@ -9,7 +9,17 @@
       "Bash(node *)",
       "Bash(git status)",
       "Bash(git diff *)",
-      "Bash(git log *)"
+      "Bash(git log *)",
+      "Bash(git pull *)",
+      "Bash(git push *)",
+      "Bash(git fetch *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git worktree *)",
+      "Bash(git branch *)",
+      "Bash(git merge *)",
+      "Bash(git config *)",
+      "Bash(bd *)"
     ],
     "deny": [
       "Read(**/.env*)",
@@ -17,7 +27,17 @@
       "Read(**/*credential*)",
       "Bash(rm -rf *)",
       "Bash(git push --force*)",
-      "Bash(git reset --hard*)"
+      "Bash(git reset --hard*)",
+      "Edit(eslint.config.mjs)",
+      "Edit(vitest.config.ts)",
+      "Edit(.dependency-cruiser.cjs)",
+      "Edit(tsconfig.json)",
+      "Edit(tsconfig.build.json)",
+      "Write(eslint.config.mjs)",
+      "Write(vitest.config.ts)",
+      "Write(.dependency-cruiser.cjs)",
+      "Write(tsconfig.json)",
+      "Write(tsconfig.build.json)"
     ]
   }
 }

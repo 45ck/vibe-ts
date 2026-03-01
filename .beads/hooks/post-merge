@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+set -e
+# Beads post-merge hook
+#
+# Delegates to bd hook post-merge (skips gracefully if bd not installed)
+
+if ! command -v bd >/dev/null 2>&1; then
+    exit 0
+fi
+
+exec bd hook post-merge "$@"

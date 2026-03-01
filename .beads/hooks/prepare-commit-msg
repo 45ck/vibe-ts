@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+set -e
+# Beads prepare-commit-msg hook
+#
+# Delegates to bd hooks run prepare-commit-msg (skips gracefully if bd not installed)
+#
+# Arguments:
+#   $1 = path to the commit message file
+#   $2 = source of commit message (message, template, merge, squash, commit)
+#   $3 = commit SHA-1 (if -c, -C, or --amend)
+
+if ! command -v bd >/dev/null 2>&1; then
+    exit 0
+fi
+
+exec bd hooks run prepare-commit-msg "$@"

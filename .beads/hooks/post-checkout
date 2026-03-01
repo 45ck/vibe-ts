@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+set -e
+# Beads post-checkout hook
+#
+# Delegates to bd hook post-checkout (skips gracefully if bd not installed)
+# Silently skips -- post-checkout fires frequently
+
+if ! command -v bd >/dev/null 2>&1; then
+    exit 0
+fi
+
+exec bd hook post-checkout "$@"

@@ -15,3 +15,26 @@ Thumbs.db
 .stryker-tmp/
 reports/
 test-results/
+
+# Beads runtime (SQLite DB is generated; .beads/issues.jsonl is the git-portable format)
+.beads/beads.db
+.beads/beads.db-shm
+.beads/beads.db-wal
+.beads/bd.sock
+.beads/bd.sock.lock
+.beads/bd.sock.startlock
+.beads/deletions.jsonl
+.beads/dolt/
+.beads/dolt-access.lock
+.beads/sync-state.json
+.beads/last-touched
+.beads/.sync.lock
+.beads/.jsonl.lock
+.beads/export-state/
+.beads/.local_version
+.beads/redirect
+.beads/ephemeral.sqlite3
+.beads/ephemeral.sqlite3-*
+
+# Git worktrees for parallel agent work
+.trees/

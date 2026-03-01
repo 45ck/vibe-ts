@@ -1,0 +1,6 @@
+# Prefix for issue IDs (e.g., bead-0001).
+# Note: scripts/beads/bd.mjs has this prefix hardcoded in regex patterns.
+issue-prefix: 'bead'
+
+# Branch name used by `bd sync` for metadata exchange.
+sync-branch: 'beads-metadata'

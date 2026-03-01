@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+set -e
+# Beads + Husky chained pre-push hook
+#
+# 1. Runs bd hooks run pre-push (skips gracefully if bd not installed)
+# 2. Runs typecheck + test (original Husky behaviour)
+
+# ── bd integration ──
+if command -v bd >/dev/null 2>&1; then
+    bd hooks run pre-push "$@"
+fi
+
+# ── Husky: typecheck + test ──
+npm run typecheck && npm run test
