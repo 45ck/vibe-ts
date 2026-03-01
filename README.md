@@ -1,5 +1,11 @@
 # vibe-ts
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/banner.dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="assets/banner.light.png" />
+  <img src="assets/banner.light.png" alt="vibe-ts banner" width="100%" />
+</picture>
+
 Quality-first TypeScript template for AI-assisted development. DDD architecture with enforced boundaries, mutation testing, and comprehensive linting.
 
 ## Quick setup
