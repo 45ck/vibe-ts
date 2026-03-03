@@ -12,12 +12,20 @@
   "words": [
     "behaviour",
     "depcruise",
+    "DOMAINTREE",
     "knip",
     "negotiables",
+    "noslop",
+    "specref",
+    "specRef",
     "stryker",
-    "vitest",
+    "toon",
+    "TOON",
     "tsconfig",
-    "unbrand"
+    "unbrand",
+    "unscalable",
+    "worktree",
+    "worktrees"
   ],
   "ignorePaths": ["dist/**", "coverage/**", "reports/**", "node_modules/**", "package-lock.json"]
 }

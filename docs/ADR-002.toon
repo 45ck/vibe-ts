@@ -1,0 +1,18 @@
+id: ADR-002
+kind: ADR
+title: Mutation testing as a mandatory quality gate
+status: accepted
+scope: quality
+owner: Engineering
+date: 2026-03-01
+canonicalKey: vibe-ts-adr-mutation-testing
+tags[3]: quality,testing,stryker
+dependsOn[1]: ADR-001
+supersedes[0]:
+supersededBy[0]:
+conflictsWith[0]:
+sections[4]{title,body}:
+  Context,AI agents generate tests that achieve high line coverage but often assert only that code runs without asserting correctness. Coverage metrics alone do not catch this. An agent can produce 100% coverage with meaningless assertions.
+  Decision,Require mutation testing via Stryker on every nightly run. Mutation score must stay above 70% for domain and application layers. Stryker introduces small code mutations and verifies existing tests catch them.
+  Alternatives,Branch coverage thresholds alone were rejected because they do not detect assertion-free tests. Manual code review was rejected as unscalable with autonomous agents.
+  Consequences,Agents cannot ship logic changes with weak test assertions. The npm run ci:nightly script runs mutation testing and blocks merge if the score drops below threshold.

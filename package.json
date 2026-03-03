@@ -26,6 +26,8 @@
     "audit:high": "node scripts/ci/audit-high.mjs",
     "ci": "npm run typecheck && npm run lint && npm run format:check && npm run spell && npm run depcruise && npm run knip && npm run test:coverage && npm run audit:high",
     "ci:nightly": "npm run ci && npm run mutation",
+    "docs:check": "agent-docs check .",
+    "docs:generate": "agent-docs generate .",
     "bd": "node scripts/beads/bd.mjs",
     "bd:verify": "node scripts/beads/verify-bd-integration.mjs",
     "bd:sync": "bd sync",
@@ -40,15 +42,14 @@
   "lint-staged": {
     "*.{ts,tsx,js,mjs,cjs}": [
       "eslint --fix",
-      "prettier --write",
-      "cspell --no-progress --config cspell.json"
+      "prettier --write"
     ],
     "*.{md,mdx,json,yml,yaml}": [
-      "prettier --write",
-      "cspell --no-progress --config cspell.json"
+      "prettier --write"
     ]
   },
   "devDependencies": {
+    "@45ck/agent-docs": "^0.3.1",
     "@eslint/js": "^9.0.0",
     "@stryker-mutator/core": "^9.4.0",
     "@stryker-mutator/typescript-checker": "^9.4.0",

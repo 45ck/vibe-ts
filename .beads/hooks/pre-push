@@ -1,14 +1,22 @@
 #!/usr/bin/env sh
 set -e
-# Beads + Husky chained pre-push hook
+# pre-push: Beads + noslop chained hook
 #
-# 1. Runs bd hooks run pre-push (skips gracefully if bd not installed)
-# 2. Runs typecheck + test (original Husky behaviour)
+# 1. Runs bd hooks run pre-push (Beads — skips gracefully if bd not installed)
+# 2. Runs slow gates: typecheck + tests
+#    Uses noslop if available; falls back to npm run typecheck && npm run test.
+#    noslop is optional — the fallback provides equivalent coverage.
 
 # ── bd integration ──
 if command -v bd >/dev/null 2>&1; then
-    bd hooks run pre-push "$@"
+  bd hooks run pre-push "$@"
 fi
 
-# ── Husky: typecheck + test ──
-npm run typecheck && npm run test
+# ── slow gates ──
+if command -v noslop >/dev/null 2>&1; then
+  noslop check --tier=slow
+else
+  # noslop not installed — running equivalent gates directly.
+  # Install noslop globally for the full experience: npm install -g @45ck/noslop
+  npm run typecheck && npm run test
+fi

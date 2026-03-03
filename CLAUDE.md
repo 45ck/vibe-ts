@@ -66,3 +66,22 @@ Dependency-cruiser enforces inward-only flow when layers exist.
   - `npm run bd -- issue start <id> --by "<name>"` -- claim + create worktree
   - `npm run bd -- issue finish <id>` -- merge + close + auto-push (from repo root)
 - Do not modify `AGENT_LOOP.md` or `.beads/issues.jsonl` manually.
+
+## Planning artifacts (agent-docs)
+
+- Every feature or architectural decision must have a validated TOON artifact in `docs/` before implementation starts.
+- **Spec-first rule**: if a Beads issue has a `specRef` field, find and read that artifact before writing any code.
+- Check artifact validity: `npm run docs:check`
+- After changing artifacts: `npm run docs:generate`
+- Artifact kinds in `docs/`: ADR (decisions), PRD (product requirements), SRD (system requirements), POLICY (rules), DOMAINTREE (domain model), JOURNEY (user flows)
+- If no `specRef` exists and requirements are unclear, stop and ask the user to create an artifact rather than guessing.
+
+## Issue creation (with spec reference)
+
+When creating a Beads issue for a feature, always include a `specRef` pointing to the relevant artifact id:
+
+```
+npm run bd -- issue create --title "feat: add user auth" --specRef ADR-003
+```
+
+If the artifact does not exist yet, create it in `docs/` first, run the check, then create the issue.

@@ -1,14 +1,29 @@
 #!/usr/bin/env sh
 set -e
-# Beads + Husky chained pre-commit hook
+# pre-commit: noslop + Beads + lint-staged chained hook
 #
-# 1. Runs bd hook pre-commit (skips gracefully if bd not installed)
-# 2. Runs npx lint-staged (original Husky behaviour)
+# 1. Blocks commits that modify protected quality gate configs (noslop)
+# 2. Runs bd hook pre-commit (Beads — skips gracefully if bd not installed)
+# 3. Runs npx lint-staged (format, lint, spell on staged files)
+
+# ── noslop: block commits to protected quality gate configs ──
+PROTECTED_CONFIGS="eslint.config.mjs vitest.config.ts .dependency-cruiser.cjs tsconfig.json tsconfig.build.json .prettierrc cspell.json"
+# Read staged files line-by-line to handle filenames with spaces correctly
+while IFS= read -r staged_file; do
+  for cfg in $PROTECTED_CONFIGS; do
+    if [ "$staged_file" = "$cfg" ]; then
+      echo "noslop: $cfg is a protected quality gate config — changes cannot be committed." >&2
+      exit 1
+    fi
+  done
+done << STAGED
+$(git diff --cached --name-only 2>/dev/null)
+STAGED
 
 # ── bd integration ──
 if command -v bd >/dev/null 2>&1; then
-    bd hook pre-commit "$@"
+  bd hook pre-commit "$@"
 fi
 
-# ── Husky: lint-staged ──
+# ── lint-staged ──
 npx lint-staged

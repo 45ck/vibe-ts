@@ -26,7 +26,17 @@ Keep this name for the whole session. Use it in every `--by` argument.
 
 ```bash
 cd "<repo-root>"                               # adjust to your actual repo path
-git pull --rebase origin main                   # get latest state
+
+# Confirm CLAUDE.md (project rules) is present
+if [ ! -f "CLAUDE.md" ]; then
+  echo "ERROR: CLAUDE.md not found in repo root. Is <repo-root> correct?"
+  exit 1
+fi
+
+# Sync with primary branch
+PRIMARY_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | awk -F'/' '{print $NF}' || echo "master")
+git pull --rebase origin "$PRIMARY_BRANCH"
+
 node scripts/beads/verify-bd-integration.mjs   # confirm tooling is healthy
 ```
 
@@ -103,6 +113,12 @@ link(p.join(root,'node_modules'),'node_modules');
    npm run bd -- issue view "$ISSUE_ID"
    ```
 2. Read `CLAUDE.md` (project rules) in the **repo root**.
+3. **If the issue has a `specRef` field**, read that artifact before writing any code:
+   ```bash
+   cat "<repo-root>/docs/$SPEC_REF.toon"    # e.g. docs/ADR-003.toon
+   npm run docs:check                        # verify all artifacts are valid
+   ```
+   If the artifact is invalid or missing, **stop** -- do not implement from memory. Ask the user to create or fix the artifact.
 
 **Architecture rules (never violate):**
 
@@ -159,15 +175,15 @@ This:
 Then push:
 
 ```bash
-git push origin main
-git status   # must show up to date with origin/main
+git push origin "$PRIMARY_BRANCH"
+git status   # must show up to date with origin/$PRIMARY_BRANCH
 ```
 
 If `git push` is rejected (another agent pushed first):
 
 ```bash
-git pull --rebase origin main
-git push origin main
+git pull --rebase origin "$PRIMARY_BRANCH"
+git push origin "$PRIMARY_BRANCH"
 ```
 
 ### Step H -- Announce and loop
@@ -219,6 +235,7 @@ npm run bd -- issue view "$ISSUE_ID"
 - Do **not** commit to `main` directly -- always go through the worktree + `issue finish`
 - Do **not** skip `npm run ci` -- a broken CI gate blocks all other agents
 - Do **not** work on more than one issue at a time in a single agent session
+- Do **not** implement a feature without reading its `specRef` artifact first -- if none exists, stop and ask
 
 ---
 
