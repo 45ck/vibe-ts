@@ -148,6 +148,9 @@ function parseToon(text) {
       const usesTitleBody =
         rawColumns[0]?.toLowerCase?.() === 'title' && rawColumns[1]?.toLowerCase?.() === 'body';
       if (usesTitleBody) {
+        if (!Array.isArray(doc[key])) {
+          doc[key] = [];
+        }
         i += 1;
         while (i < lines.length) {
           const sectionLine = lines[i];
