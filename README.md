@@ -40,6 +40,8 @@ Quality-first TypeScript template for AI-assisted development. DDD architecture 
   - `npm run admin:branch-protection` (verify remote protection settings)
   - `npm run admin:branch-protection:apply -- --repo owner/repo --branch main` (apply and normalize in CI automation)
     - requires `GH_TOKEN`/`GITHUB_TOKEN` with repository admin permissions on branch protection APIs
+  - Use `workflow_dispatch` on `.github/workflows/branch-protection.yml` to apply from GitHub UI:
+    - `apply=true`, optional `branch`, `contexts`, and `approvals` inputs.
 
 ## Architecture
 

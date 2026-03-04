@@ -5,6 +5,23 @@ on:
   schedule:
     - cron: '30 3 * * *'
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Target branch to verify or enforce'
+        required: false
+        default: ''
+      apply:
+        description: 'Apply/normalize policy instead of verification'
+        required: false
+        default: 'false'
+      contexts:
+        description: 'Comma-separated required status checks (defaults: quality,guardrails)'
+        required: false
+        default: 'quality,guardrails'
+      approvals:
+        description: 'Required PR approvals'
+        required: false
+        default: '1'
 
 jobs:
   verify-protection:
@@ -20,6 +37,29 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npm run admin:branch-protection
+      - name: Build args
+        run: |
+          BRANCH="${{ github.event.inputs.branch }}"
+          CONTEXTS="${{ github.event.inputs.contexts }}"
+          APPROVALS="${{ github.event.inputs.approvals }}"
+
+          COMMAND="npm run admin:branch-protection -- --repo ${GITHUB_REPOSITORY}"
+
+          if [ -n "$BRANCH" ]; then
+            COMMAND="$COMMAND --branch $BRANCH"
+          fi
+          if [ -n "$CONTEXTS" ]; then
+            COMMAND="$COMMAND --contexts $CONTEXTS"
+          fi
+          if [ -n "$APPROVALS" ]; then
+            COMMAND="$COMMAND --approvals $APPROVALS"
+          fi
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.apply }}" = "true" ]; then
+            COMMAND="$COMMAND --apply"
+          fi
+
+          echo "Running: $COMMAND"
+          eval "$COMMAND"
         env:
           GH_TOKEN: ${{ github.token }}
