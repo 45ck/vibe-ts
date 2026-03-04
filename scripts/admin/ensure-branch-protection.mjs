@@ -132,10 +132,10 @@ function validateProtection(protection, requiredContexts, requiredApprovals) {
     }
   }
 
-  if ((protection.allow_force_pushes ?? true) !== false) {
+  if ((isEnabledFlag(protection.allow_force_pushes) ?? true) !== false) {
     failures.push('Force pushes are allowed; they must be disabled.');
   }
-  if ((protection.allow_deletions ?? true) !== false) {
+  if ((isEnabledFlag(protection.allow_deletions) ?? true) !== false) {
     failures.push('Branch deletions are allowed; they must be disabled.');
   }
 
@@ -156,15 +156,23 @@ function validateProtection(protection, requiredContexts, requiredApprovals) {
     }
   }
 
-  if ((protection.required_linear_history ?? false) !== true) {
+  if ((isEnabledFlag(protection.required_linear_history) ?? false) !== true) {
     failures.push('Linear history requirement is disabled.');
   }
 
-  if (!protection.enforce_admins || protection.enforce_admins.enabled !== true) {
+  if ((isEnabledFlag(protection.enforce_admins) ?? false) !== true) {
     failures.push('Admin branch-protection enforcement is disabled.');
   }
 
   return failures;
+}
+
+function isEnabledFlag(value) {
+  if (typeof value === 'boolean') return value;
+  if (value && typeof value === 'object' && 'enabled' in value) {
+    return Boolean(value.enabled);
+  }
+  return null;
 }
 
 function parseArgs(argv) {
