@@ -18,6 +18,7 @@ if (settingsText) {
   try {
     const settings = JSON.parse(settingsText);
     const deny = new Set(settings?.permissions?.deny ?? []);
+    const allow = new Set(settings?.permissions?.allow ?? []);
     const requiredDeny = [
       'Bash(*--no-verify*)',
       'Bash(git push --force*)',
@@ -40,7 +41,10 @@ if (settingsText) {
       'Bash(bun *)',
     ];
     for (const rule of requiredAllow) {
-      if (!deny.has(rule) && !settingsText.includes(rule)) {
+      if (deny.has(rule)) {
+        failures.push(`Invalid bun rule in deny list in .claude/settings.json: ${rule}`);
+      }
+      if (!allow.has(rule)) {
         failures.push(`Missing bun allow rule in .claude/settings.json: ${rule}`);
       }
     }
@@ -51,11 +55,13 @@ if (settingsText) {
       'Edit(.claude/settings.json)',
       'Edit(.claude/hooks/**)',
       'Edit(.agent-docs/**)',
+      'Edit(tsconfig.base.json)',
       'Write(.beads/hooks/**)',
       'Write(.github/workflows/**)',
       'Write(.claude/settings.json)',
       'Write(.claude/hooks/**)',
       'Write(.agent-docs/**)',
+      'Write(tsconfig.base.json)',
     ];
     for (const rule of protectedDeny) {
       if (!deny.has(rule)) {
