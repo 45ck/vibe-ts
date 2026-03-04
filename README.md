@@ -31,6 +31,11 @@ Quality-first TypeScript template for AI-assisted development. DDD architecture 
 
 - Run `npm run agent:verify` to smoke-test hook bypass protections and required policy settings.
 - This checks that `--no-verify`, `SKIP_CI`, and hook bypass env flags (like `HUSKY=0` / `HUSKY_SKIP_HOOKS`) are blocked.
+- Remote enforcement is in `.github/workflows/guardrails.yml`; to fully prevent policy bypass on mainline history, enable branch protection rules in GitHub:
+  - Require pull requests before merging to the default branch
+  - Require status checks: `quality`, `guardrails`
+  - Disallow force pushes and stale out-of-date branch merges
+  - For strict mode, require administrator review and CODEOWNERS approval where appropriate
 
 ## Architecture
 

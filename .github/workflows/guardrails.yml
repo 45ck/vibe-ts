@@ -14,6 +14,19 @@ on:
       - 'tsconfig.build.json'
       - '.prettierrc'
       - 'cspell.json'
+  push:
+    paths:
+      - '.beads/hooks/**'
+      - '.github/workflows/**'
+      - '.claude/settings.json'
+      - '.claude/hooks/**'
+      - 'eslint.config.mjs'
+      - 'vitest.config.ts'
+      - '.dependency-cruiser.cjs'
+      - 'tsconfig.json'
+      - 'tsconfig.build.json'
+      - '.prettierrc'
+      - 'cspell.json'
 
 jobs:
   guardrails:
@@ -22,6 +35,17 @@ jobs:
       - uses: actions/checkout@v4
       - name: Block unreviewed quality-gate changes
         run: |
+          if [ "${{ github.event_name }}" = "push" ] && \
+            [ "${{ github.ref_name }}" != "${{ github.event.repository.default_branch }}" ]; then
+            echo "Skipping guardrail label check for non-default branch push."
+            exit 0
+          fi
+
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "::error::Direct pushes to protected quality-gate files are blocked."
+            echo "::error::Use a pull request with 'noslop-approved' approval to change hook/quality-policy files."
+            exit 1
+          fi
           echo "::error::This PR modifies protected quality gate or hook files."
           echo "::error::Add the 'noslop-approved' label to proceed."
           if ! gh pr view "${{ github.event.pull_request.number }}" --json labels \
