@@ -4,8 +4,8 @@ set -euo pipefail
 input="${CLAUDE_TOOL_INPUT:-}"
 
 # Block bypass attempts
-if [[ "$input" == *"--no-verify"* ]]; then
-  echo "ERROR: --no-verify is forbidden. Quality gates are non-negotiable."
+if [[ "$input" == *"--no-verify"* ]] || [[ "$input" == *"git commit -n"* ]]; then
+  echo "ERROR: Commit bypass flags are forbidden. Quality gates are non-negotiable."
   exit 1
 fi
 
@@ -40,7 +40,7 @@ fi
 
 # Block editing protected files
 tool="${CLAUDE_TOOL_NAME:-}"
-protected_configs="eslint\\.config\\.mjs|vitest\\.config\\.ts|\\.dependency-cruiser\\.cjs|tsconfig\\.json|tsconfig\\.build\\.json|\\.prettierrc|cspell\\.json"
+protected_configs="eslint\\.config\\.mjs|vitest\\.config\\.ts|\\.dependency-cruiser\\.cjs|tsconfig\\.json|tsconfig\\.build\\.json|tsconfig\\.base\\.json|\\.prettierrc|cspell\\.json"
 protected_infra="\\.beads/hooks/|\\.github/workflows/|\\.claude/settings\\.json|\\.claude/hooks/"
 if [[ "$tool" == "Edit" || "$tool" == "Write" ]]; then
   if echo "$input" | grep -qE "$protected_configs"; then

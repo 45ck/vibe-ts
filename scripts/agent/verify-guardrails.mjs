@@ -21,6 +21,7 @@ if (settingsText) {
     const allow = new Set(settings?.permissions?.allow ?? []);
     const requiredDeny = [
       'Bash(*--no-verify*)',
+      'Bash(git commit -n*)',
       'Bash(git push --force*)',
       'Bash(git push -f*)',
       'Bash(git reset --hard*)',
@@ -105,7 +106,7 @@ if (preCommit) {
   }
   const hasHuskyBypassBlock =
     preCommit.includes('HUSKY=0') ||
-    preCommit.includes('HUSKY:-0') ||
+    preCommit.includes('HUSKY:-') ||
     preCommit.includes('HUSKY_SKIP_HOOKS');
   if (!hasHuskyBypassBlock) {
     failures.push('pre-commit hook should block husky bypass environment variables');
@@ -119,7 +120,7 @@ if (prePush) {
   }
   const hasHuskyBypassBlock =
     prePush.includes('HUSKY=0') ||
-    prePush.includes('HUSKY:-0') ||
+    prePush.includes('HUSKY:-') ||
     prePush.includes('HUSKY_SKIP_HOOKS');
   if (!hasHuskyBypassBlock) {
     failures.push('pre-push hook should block husky bypass environment variables');
@@ -129,6 +130,7 @@ if (prePush) {
 function runHookSmoke() {
   const checks = [
     { name: 'no-verify', input: 'git commit --no-verify', expectError: true },
+    { name: 'commit-short', input: 'git commit -n', expectError: true },
     { name: 'skip-ci-env', input: 'echo SKIP_CI=true', expectError: true },
     { name: 'skip-ci-assign', input: 'SKIP_CI=1 npm run ci', expectError: true },
     { name: 'skip-husky', input: 'HUSKY=0 git commit --message "skip test"', expectError: true },
@@ -142,6 +144,12 @@ function runHookSmoke() {
     { name: 'force-push-short', input: 'git push -f origin main', expectError: true },
     { name: 'hard-reset', input: 'git reset --hard HEAD~1', expectError: true },
     { name: 'eslint-direct', input: 'eslint src/index.ts', expectError: true },
+    {
+      name: 'protected-tsconfig-base',
+      input: 'Edit(tsconfig.base.json)',
+      expectError: true,
+      tool: 'Edit',
+    },
     { name: 'codex-safe-shell', input: 'echo codex status', expectError: false },
     { name: 'codex-no-verify', input: 'codex "git commit --no-verify -m test"', expectError: true },
     { name: 'safe', input: 'git status', expectError: false },

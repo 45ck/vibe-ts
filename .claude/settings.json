@@ -41,6 +41,7 @@
       "Read(**/*credential*)",
       "Bash(rm -rf *)",
       "Bash(*--no-verify*)",
+      "Bash(git commit -n*)",
       "Bash(git push --force*)",
       "Bash(git push -f*)",
       "Bash(git reset --hard*)",
