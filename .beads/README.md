@@ -30,6 +30,22 @@ npm run bd -- issue start bead-0001 --by "agent-alpha"
 npm run bd -- issue finish bead-0001
 ```
 
+### AI agent team bootstrap
+
+```bash
+# Seed a planned backlog from the template plan
+npm run agent:seed-issues
+
+# Inspect current project and issue context
+npm run agent:context
+
+# Spawn/assign an agent squad
+npm run agent:spawn -- --agents "agent-alpha,agent-beta,agent-gamma"
+```
+
+It auto-creates worktrees and claims issues immediately by default.
+Use `--no-assign` to print only the commands for manual startup.
+
 ## Why Beads?
 
 - **AI-Native**: CLI-first design works seamlessly with AI coding agents

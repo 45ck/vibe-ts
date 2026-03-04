@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { brand, unbrand, UserId, GreetingId } from './index.js';
+import { brand, unbrand } from './branded.js';
 
 describe('branded primitives', () => {
   describe('brand / unbrand', () => {
@@ -12,20 +12,6 @@ describe('branded primitives', () => {
     it('should preserve the underlying value', () => {
       const branded = brand<number, 'Count'>(42);
       expect(unbrand(branded)).toBe(42);
-    });
-  });
-
-  describe('UserId', () => {
-    it('should create a branded UserId', () => {
-      const id = UserId('user-123');
-      expect(unbrand(id)).toBe('user-123');
-    });
-  });
-
-  describe('GreetingId', () => {
-    it('should create a branded GreetingId', () => {
-      const id = GreetingId('greeting-456');
-      expect(unbrand(id)).toBe('greeting-456');
     });
   });
 });

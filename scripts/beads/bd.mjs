@@ -67,6 +67,52 @@ function spawnGit(args, cwd) {
   return { status: r.status ?? 1, stdout: r.stdout ?? '', stderr: r.stderr ?? '' };
 }
 
+function detectPrimaryBranch(root) {
+  const symbolic = spawnGit(['symbolic-ref', 'refs/remotes/origin/HEAD'], root);
+  if (symbolic.status === 0) {
+    const raw = String(symbolic.stdout || '').trim();
+    if (raw) return raw.replace(/^refs\/remotes\/origin\//, '');
+  }
+
+  const fallbackReason = String(
+    symbolic.stderr || symbolic.stdout || 'origin/HEAD is unavailable',
+  ).trim();
+
+  const head = spawnGit(['rev-parse', '--abbrev-ref', 'HEAD'], root);
+  const headBranch = String(head.stdout || '').trim();
+  if (head.status === 0 && headBranch && headBranch !== 'HEAD') {
+    process.stderr.write(
+      `warning: origin/HEAD unresolved (${fallbackReason}); using current branch '${headBranch}' for publish.\n`,
+    );
+    return headBranch;
+  }
+
+  const initDefault = spawnGit(['config', '--get', 'init.defaultBranch'], root);
+  const initDefaultBranch = String(initDefault.stdout || '').trim();
+  if (initDefault.status === 0 && initDefaultBranch) {
+    process.stderr.write(
+      `warning: origin/HEAD unresolved (${fallbackReason}); using init.defaultBranch '${initDefaultBranch}' for publish.\n`,
+    );
+    return initDefaultBranch;
+  }
+
+  const branchList = spawnGit(['branch', '--list', '--format=%(refname:short)'], root);
+  const firstBranch = String(branchList.stdout || '')
+    .split('\n')
+    .map((branch) => branch.trim())
+    .find((branch) => branch.length > 0);
+  if (branchList.status === 0 && firstBranch) {
+    process.stderr.write(
+      `warning: origin/HEAD unresolved (${fallbackReason}); using first local branch '${firstBranch}' for publish.\n`,
+    );
+    return firstBranch;
+  }
+
+  throw new Error(
+    `Unable to resolve primary publish branch from origin/HEAD, current branch, defaultBranch, or local branches. Configure origin/HEAD explicitly.`,
+  );
+}
+
 function repoRoot() {
   return process.cwd();
 }
@@ -332,6 +378,7 @@ function buildUpdateChanges(argv, existingIssue) {
 function main() {
   const root = repoRoot();
   const rawArgv = process.argv.slice(2);
+  const primaryBranch = detectPrimaryBranch(root);
 
   if (rawArgv.length === 0 || rawArgv.includes('--help') || rawArgv.includes('-h')) {
     usage();
@@ -480,6 +527,10 @@ function main() {
     const idx = findIssueIndex(issues, id);
     const issue = issues[idx];
     if (issue.status !== 'open') fail(`Cannot start non-open bead: ${id} is ${issue.status}.`);
+    const existingClaim = getClaimedBy(issue);
+    if (existingClaim && existingClaim !== claimedBy && !rawArgv.includes('--force')) {
+      fail(`Bead ${id} is already claimed by "${existingClaim}". Use --force to reassign.`);
+    }
 
     const worktreePath = path.join(root, '.trees', id);
     if (fs.existsSync(worktreePath)) {
@@ -493,7 +544,7 @@ function main() {
     }
 
     const gitResult = spawnGit(
-      ['worktree', 'add', '-b', id, path.join('.trees', id), 'main'],
+      ['worktree', 'add', '-b', id, path.join('.trees', id), primaryBranch],
       root,
     );
     if (gitResult.status !== 0) {
@@ -566,15 +617,15 @@ function main() {
       process.stderr.write(`Warning: git commit failed:\n${commitResult.stderr}\n`);
     }
     let pushOk = false;
-    const pushResult = spawnGit(['push', 'origin', 'main'], root);
+    const pushResult = spawnGit(['push', 'origin', primaryBranch], root);
     if (pushResult.status !== 0) {
       // Another agent may have pushed first — rebase and retry.
-      spawnGit(['pull', '--rebase', 'origin', 'main'], root);
-      const retryPush = spawnGit(['push', 'origin', 'main'], root);
+      spawnGit(['pull', '--rebase', 'origin', primaryBranch], root);
+      const retryPush = spawnGit(['push', 'origin', primaryBranch], root);
       if (retryPush.status !== 0) {
         process.stderr.write(`Warning: git push failed:\n${retryPush.stderr}\n`);
         process.stderr.write(
-          `Run manually: git pull --rebase origin main && git push origin main\n`,
+          `Run manually: git pull --rebase origin ${primaryBranch} && git push origin ${primaryBranch}\n`,
         );
       } else {
         pushOk = true;
@@ -586,7 +637,7 @@ function main() {
     if (!asJson) {
       if (pushOk) {
         process.stdout.write(
-          `Finished ${id}: worktree removed, bead closed, pushed to origin/main.\n`,
+          `Finished ${id}: worktree removed, bead closed, pushed to origin/${primaryBranch}.\n`,
         );
       } else {
         process.stdout.write(

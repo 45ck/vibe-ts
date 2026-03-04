@@ -18,6 +18,20 @@ Quality-first TypeScript template for AI-assisted development. DDD architecture 
    and `src/infrastructure/adapters/in-memory-greeting-repository.ts`.
 6. Start building your domain in `src/domain/`.
 
+### Fast install + Bun support
+
+- Default path: `npm install`
+- Fast CI-friendly install: `npm run install:fast`
+- Bun-accelerated local workflow:
+  - `bun install`
+  - `bun run ci:fast` (for fast checks), then `npm run ci` (full gate) when needed
+- pnpm users can still run `corepack pnpm install` manually; repo layout already supports workspace workspaces.
+
+### Quality guardrail checks
+
+- Run `npm run agent:verify` to smoke-test hook bypass protections and required policy settings.
+- This checks that `--no-verify`, `SKIP_CI`, and hook bypass env flags (like `HUSKY=0` / `HUSKY_SKIP_HOOKS`) are blocked.
+
 ## Architecture
 
 This project follows Domain-Driven Design with enforced layer boundaries:
@@ -94,6 +108,30 @@ If your project includes a web UI:
 3. Create `e2e/` directory and `playwright.config.ts`
 4. Add to eslint.config.mjs ignores: `'e2e/**'`
 5. Add npm scripts: `test:e2e`, `e2e:install`
+
+## AI agent swarm mode
+
+You can run multiple agents in parallel using the Beads + AGENT workflow:
+
+- `npm run agent:context` prints repository state, open issue health, and next actions.
+- `npm run agent:seed-issues` seeds a default bootstrap issue backlog from `scripts/agent/bootstrap-plan.json`.
+- `npm run agent:spawn -- --agents "agent-alpha,agent-beta,agent-gamma"` starts a team plan.
+  - Add `--assign` (explicit/default) to auto-start issues and create `.trees/<id>` worktrees.
+  - Add `--no-assign` to just print commands for human/manual claiming.
+  - Add `--no-seed` if you want to seed issues separately.
+  - Claims are pushed to the repository's default remote branch (resolved from `origin/HEAD`).
+- `npm run agent:handoff -- --issue <id> --to <agent-name> --note "<message>"` hands off ownership between agents.
+- `npm run agent:context --json` and `npm run bd -- issue next --json` are the machine-readable context outputs.
+
+You can also use:
+
+- `create-vibets --agents "agent-alpha,agent-beta"` (alias for `npm run agent:spawn`) from a shell.
+
+Suggested loop:
+
+1. Seed issues if needed: `npm run agent:seed-issues`.
+2. Spawn team: `npm run agent:spawn` (auto-assigns by default, or add `--no-assign` for planning mode).
+3. Each agent runs the AGENT loop from their claimed worktree.
 
 ## License
 

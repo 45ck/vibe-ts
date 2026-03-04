@@ -1,2 +1,6 @@
+monorepo
+repo
 worktree
 worktrees
+workspace
+workspaces

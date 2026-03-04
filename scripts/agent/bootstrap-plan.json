@@ -1,0 +1,44 @@
+{
+  "id": "SWARM-PLAN-001",
+  "title": "Vibets Agent Team Bootstrap Plan",
+  "status": "active",
+  "owner": "engineering",
+  "issues": [
+    {
+      "title": "chore: harden mono-template package layout for Vite + Beads integration",
+      "priority": "P0",
+      "phase": "devenv",
+      "body": "Create and document the root package layout so the repository is consistently scaffolded as a multi-package template (`packages/*`, `apps/*`, workspace scripts, shared build baseline)."
+    },
+    {
+      "title": "feat: add repo-level CI workflow for workspace quality gates",
+      "priority": "P1",
+      "phase": "governance",
+      "body": "Add GitHub Actions workflow(s) that run `npm run ci`, optional `npm run ci:nightly`, and Beads sync/verification checks for every workspace."
+    },
+    {
+      "title": "feat: add agent swarm bootstrapping scripts and runbook",
+      "priority": "P0",
+      "phase": "cross-cutting",
+      "body": "Ship `npm run agent:*` utilities to create seed issues, print repo context, hand off claims, and spawn a ready team of working agents."
+    },
+    {
+      "title": "feat: implement scaffold/agent command for create-vibets workflow",
+      "priority": "P1",
+      "phase": "application",
+      "body": "Improve `create-vibets` entry point to orchestrate the new agent bootstrap flow with safe defaults and optional direct assignment behavior."
+    },
+    {
+      "title": "chore: codify noslop + agent-docs policy for autonomous agent workflows",
+      "priority": "P2",
+      "phase": "governance",
+      "body": "Audit and document which agent hooks are intentionally enforced and where agent workflows can remain fast while preserving quality expectations."
+    },
+    {
+      "title": "chore: publish memory-aware agent handoff guidance and run checklist",
+      "priority": "P2",
+      "phase": "presentation",
+      "body": "Add docs/checklists that include memory handoff format, issue-specific context capture, and completion criteria for multi-agent work."
+    }
+  ]
+}

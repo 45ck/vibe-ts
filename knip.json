@@ -1,7 +1,20 @@
 {
   "$schema": "https://unpkg.com/knip@latest/schema.json",
-  "entry": ["src/index.ts", "vitest.config.ts"],
-  "project": ["src/**/*.ts"],
-  "ignore": ["dist/**", "coverage/**", "reports/**"],
-  "ignoreDependencies": ["@vitest/coverage-v8"]
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/**/*.mjs"],
+      "project": ["scripts/**/*.mjs"]
+    },
+    "packages/shared": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": []
+    },
+    "apps/example": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": ["@vitest/coverage-v8", "@repo/shared"]
+    }
+  },
+  "ignore": ["dist/**", "coverage/**", "reports/**"]
 }

@@ -5,27 +5,38 @@
   "version": "0.1.0",
   "description": "Quality-first TypeScript template for AI-assisted development. DDD architecture with enforced boundaries.",
   "license": "MIT",
+  "packageManager": "npm@10.8.3",
   "engines": {
     "node": ">=22.0.0"
   },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc --build",
+    "typecheck": "tsc --build",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "spell": "cspell --no-progress --config cspell.json \"{src,docs}/**/*\" \"*.md\"",
+    "spell": "cspell --no-progress --config cspell.json \"{packages,apps}/*/src/**/*\" \"*.md\" \"{packages,apps}/*/*.md\"",
     "knip": "knip --production",
-    "depcruise": "dependency-cruiser --config .dependency-cruiser.cjs --validate --output-type err src",
-    "depgraph": "dependency-cruiser --config .dependency-cruiser.cjs --output-type mermaid src --output-to reports/dependency-graph.mmd",
+    "depcruise": "npm run depcruise --workspaces --if-present",
+    "depgraph": "npm run depgraph --workspaces --if-present",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "mutation": "stryker run",
+    "ci:fast": "npm run typecheck && npm run lint && npm run format:check && npm run depcruise",
+    "install:fast": "npm ci --prefer-offline --no-audit --no-fund",
+    "mutation": "npm run mutation --workspaces --if-present",
     "audit:high": "node scripts/ci/audit-high.mjs",
     "ci": "npm run typecheck && npm run lint && npm run format:check && npm run spell && npm run depcruise && npm run knip && npm run test:coverage && npm run audit:high",
     "ci:nightly": "npm run ci && npm run mutation",
+    "quality": "npm run quality:fast && npm run quality:slow && npm run quality:ci",
+    "quality:fast": "noslop check --tier=fast",
+    "quality:slow": "noslop check --tier=slow",
+    "quality:ci": "noslop check --tier=ci",
     "docs:check": "agent-docs check .",
     "docs:generate": "agent-docs generate .",
     "bd": "node scripts/beads/bd.mjs",
@@ -37,19 +48,30 @@
     "bd:doctor": "bd doctor",
     "bd:prime": "bd prime",
     "bd:dep": "bd dep",
+    "agent:context": "node scripts/agent/context.mjs",
+    "agent:context:json": "node scripts/agent/context.mjs --json",
+    "agent:seed-issues": "node scripts/agent/seed-issues.mjs",
+    "agent:handoff": "node scripts/agent/handoff.mjs",
+    "agent:spawn": "node scripts/agent/spawn-team.mjs",
+    "agent:verify-hooks": "node scripts/agent/verify-guardrails.mjs",
+    "agent:verify": "node scripts/agent/verify-guardrails.mjs",
     "prepare": "husky && git rev-parse --git-dir >/dev/null 2>&1 && git config core.hooksPath .beads/hooks || true"
+  },
+  "bin": {
+    "create-vibets": "scripts/agent/spawn-team.mjs"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs,cjs}": [
-      "eslint --fix",
-      "prettier --write"
+      "node node_modules/eslint/bin/eslint.js --fix",
+      "node node_modules/prettier/bin/prettier.cjs --write"
     ],
     "*.{md,mdx,json,yml,yaml}": [
-      "prettier --write"
+      "node node_modules/prettier/bin/prettier.cjs --write"
     ]
   },
   "devDependencies": {
-    "@45ck/agent-docs": "^0.3.1",
+    "@45ck/agent-docs": "github:45ck/agent-docs",
+    "@45ck/noslop": "^1.0.0",
     "@eslint/js": "^9.0.0",
     "@stryker-mutator/core": "^9.4.0",
     "@stryker-mutator/typescript-checker": "^9.4.0",

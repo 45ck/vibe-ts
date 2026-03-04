@@ -22,6 +22,8 @@ export default tseslint.config(
       '**/reports/**',
       '**/node_modules/**',
       '**/.stryker-tmp/**',
+      'vitest.workspace.ts',
+      '**/vitest.config.ts',
     ],
   },
 
@@ -54,7 +56,7 @@ export default tseslint.config(
     settings: {
       'import/resolver': {
         typescript: {
-          project: ['./tsconfig.json'],
+          project: ['./tsconfig.json', './packages/*/tsconfig.json', './apps/*/tsconfig.json'],
         },
         node: true,
       },
@@ -91,7 +93,9 @@ export default tseslint.config(
     files: ['**/*.{ts,tsx,mts,cts}'],
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        projectService: {
+          noWarnOnMultipleProjects: true,
+        },
         tsconfigRootDir: __dirname,
       },
     },
@@ -156,7 +160,7 @@ export default tseslint.config(
   // higher complexity/size budgets. require-await is off because they fulfil
   // async port contracts without real I/O.
   {
-    files: ['src/infrastructure/adapters/**/in-memory-*.ts'],
+    files: ['**/src/infrastructure/adapters/**/in-memory-*.ts'],
     rules: {
       complexity: 'off',
       'max-depth': 'off',
@@ -173,8 +177,8 @@ export default tseslint.config(
   // complexity/size budgets.
   {
     files: [
-      'src/infrastructure/adapters/**/*.ts',
-      '!src/infrastructure/adapters/**/in-memory-*.ts',
+      '**/src/infrastructure/adapters/**/*.ts',
+      '!**/src/infrastructure/adapters/**/in-memory-*.ts',
     ],
     rules: {
       complexity: 'off',

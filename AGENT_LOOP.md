@@ -34,7 +34,16 @@ if [ ! -f "CLAUDE.md" ]; then
 fi
 
 # Sync with primary branch
-PRIMARY_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | awk -F'/' '{print $NF}' || echo "master")
+PRIMARY_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | awk -F'/' '{print $NF}')
+if [ -z "$PRIMARY_BRANCH" ] || [ "$PRIMARY_BRANCH" = "HEAD" ]; then
+  PRIMARY_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+fi
+if [ -z "$PRIMARY_BRANCH" ] || [ "$PRIMARY_BRANCH" = "HEAD" ]; then
+  PRIMARY_BRANCH="$(git config --get init.defaultBranch 2>/dev/null)"
+fi
+if [ -z "$PRIMARY_BRANCH" ]; then
+  PRIMARY_BRANCH="main"
+fi
 git pull --rebase origin "$PRIMARY_BRANCH"
 
 node scripts/beads/verify-bd-integration.mjs   # confirm tooling is healthy
@@ -58,7 +67,7 @@ Repeat this entire cycle until you decide to stop (or no issues remain):
 ```bash
 # From repo root:
 git fetch origin --prune
-git pull --rebase origin main
+git pull --rebase origin "$PRIMARY_BRANCH"
 npm run bd -- issue next --json
 ```
 
@@ -86,8 +95,8 @@ Immediately publish the claim (do not delay this):
 ```bash
 git add .beads/issues.jsonl
 git commit -m "chore: start $ISSUE_ID"
-git pull --rebase origin main
-git push origin main
+git pull --rebase origin "$PRIMARY_BRANCH"
+git push origin "$PRIMARY_BRANCH"
 npm run bd -- issue view "$ISSUE_ID"   # confirm claimedBy is still you
 ```
 
@@ -97,13 +106,7 @@ If claim ownership is no longer yours after pull, run `npm run bd -- issue uncla
 
 ```bash
 cd ".trees/$ISSUE_ID"
-# Link node_modules from repo root (instant, zero disk, no install needed)
-node -e "
-const fs=require('fs'),p=require('path'),root=p.resolve('../..');
-const type=process.platform==='win32'?'junction':'dir';
-const link=(src,dst)=>{ if(!fs.existsSync(dst)) fs.symlinkSync(src,dst,type); };
-link(p.join(root,'node_modules'),'node_modules');
-"
+npm install          # resolves workspace symlinks correctly in worktree
 ```
 
 ### Step D -- Understand the issue
@@ -122,11 +125,11 @@ link(p.join(root,'node_modules'),'node_modules');
 
 **Architecture rules (never violate):**
 
-- `src/domain/` -> zero external deps (no HTTP, no DB, no infra imports)
-- `src/application/` -> use-cases only; no direct DB calls
-- `src/infrastructure/` -> adapters only; no domain logic
-- `src/presentation/` -> HTTP handlers, UI, CLI
-- All domain IDs are branded primitives from `src/domain/primitives/`
+- `apps/<name>/src/domain/` -> zero external deps except `@repo/shared` (no HTTP, no DB, no infra imports)
+- `apps/<name>/src/application/` -> use-cases only; no direct DB calls
+- `apps/<name>/src/infrastructure/` -> adapters only; no domain logic
+- `apps/<name>/src/presentation/` -> HTTP handlers, UI, CLI
+- All domain IDs are branded primitives from `@repo/shared` (foundation) and `apps/<name>/src/domain/primitives/` (app-specific)
 
 ### Step E -- Implement
 
@@ -168,7 +171,7 @@ npm run bd -- issue finish "$ISSUE_ID"
 
 This:
 
-1. Merges branch `$ISSUE_ID` -> `main`
+1. Merges branch `$ISSUE_ID` -> `$PRIMARY_BRANCH`
 2. Removes the worktree at `.trees/$ISSUE_ID/`
 3. Marks the issue `closed` in `issues.jsonl`
 
@@ -202,14 +205,14 @@ Print a one-line summary:
 
 Because multiple agents run at the same time:
 
-| Rule                                          | Why                                         |
-| --------------------------------------------- | ------------------------------------------- |
-| Each agent works in `.trees/<id>/`            | Worktrees are isolated -- no file conflicts |
-| `npm run bd -- issue start` is the claim gate | Sets `claimedBy` before creating worktree   |
-| Push claim immediately after start            | Other machines see ownership right away     |
-| "Branch already exists" -> skip and retry     | Git itself prevents double-claiming         |
-| `git pull --rebase` before every push         | Keeps main clean with parallel pushes       |
-| Never force-push                              | Would destroy other agents' merged work     |
+| Rule                                          | Why                                             |
+| --------------------------------------------- | ----------------------------------------------- |
+| Each agent works in `.trees/<id>/`            | Worktrees are isolated -- no file conflicts     |
+| `npm run bd -- issue start` is the claim gate | Sets `claimedBy` before creating worktree       |
+| Push claim immediately after start            | Other machines see ownership right away         |
+| "Branch already exists" -> skip and retry     | Git itself prevents double-claiming             |
+| `git pull --rebase` before every push         | Keeps primary branch clean with parallel pushes |
+| Never force-push                              | Would destroy other agents' merged work         |
 
 ---
 
@@ -232,7 +235,7 @@ npm run bd -- issue view "$ISSUE_ID"
 
 - Do **not** modify `CLAUDE.md` or `AGENT_LOOP.md`
 - Do **not** change `.beads/issues.jsonl` manually -- use the `bd` commands
-- Do **not** commit to `main` directly -- always go through the worktree + `issue finish`
+- Do **not** commit to `$PRIMARY_BRANCH` directly -- always go through the worktree + `issue finish`
 - Do **not** skip `npm run ci` -- a broken CI gate blocks all other agents
 - Do **not** work on more than one issue at a time in a single agent session
 - Do **not** implement a feature without reading its `specRef` artifact first -- if none exists, stop and ask
@@ -277,8 +280,8 @@ bd dep <id> <dep-id>                          # record dependency
 npm run ci                                    # full quality gate (from worktree)
 
 # State
-git pull --rebase origin main                 # sync main
-git push origin main                          # push after finish
+git pull --rebase origin "$PRIMARY_BRANCH"                 # sync primary branch
+git push origin "$PRIMARY_BRANCH"                          # push after finish
 ```
 
 ---

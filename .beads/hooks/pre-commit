@@ -3,18 +3,46 @@ set -e
 # pre-commit: noslop + Beads + lint-staged chained hook
 #
 # 1. Blocks commits that modify protected quality gate configs (noslop)
-# 2. Runs bd hook pre-commit (Beads — skips gracefully if bd not installed)
-# 3. Runs npx lint-staged (format, lint, spell on staged files)
+# 2. Runs bd hook pre-commit (skips gracefully if bd not installed)
+# 3. Runs fast noslop checks when installed.
+# 4. Runs lint-staged (format, lint, spell on staged files)
+
+is_ci_bypass_set() {
+  case "${SKIP_CI:-}" in
+    [Tt][Rr][Uu][Ee]|[Yy]|[Yy][Ee][Ss]|1) return 0 ;;
+  esac
+  return 1
+}
+
+if is_ci_bypass_set; then
+  echo "Pre-commit blocked: SKIP_CI is set."
+  exit 1
+fi
+
+if [ "${HUSKY:-0}" = "0" ] || [ -n "${HUSKY_SKIP_HOOKS:-}" ]; then
+  echo "Pre-commit blocked: hook bypass environment variables are forbidden."
+  exit 1
+fi
 
 # ── noslop: block commits to protected quality gate configs ──
-PROTECTED_CONFIGS="eslint.config.mjs vitest.config.ts .dependency-cruiser.cjs tsconfig.json tsconfig.build.json .prettierrc cspell.json"
+# .beads/issues.jsonl is intentionally allowlisted because BD state is updated frequently.
+PROTECTED_CONFIGS=".gitignore .githooks .github .claude .beads/hooks .agent-docs eslint.config.mjs vitest.config.ts .dependency-cruiser.cjs tsconfig.json tsconfig.build.json .prettierrc cspell.json"
+ALLOWED_STAGED_EXCEPTIONS=".beads/issues.jsonl .beads/issues.jsonl.lock"
 # Read staged files line-by-line to handle filenames with spaces correctly
 while IFS= read -r staged_file; do
-  for cfg in $PROTECTED_CONFIGS; do
-    if [ "$staged_file" = "$cfg" ]; then
-      echo "noslop: $cfg is a protected quality gate config — changes cannot be committed." >&2
-      exit 1
+  for exception in $ALLOWED_STAGED_EXCEPTIONS; do
+    if [ "$staged_file" = "$exception" ]; then
+      continue 2
     fi
+  done
+
+  for cfg in $PROTECTED_CONFIGS; do
+    case "$staged_file" in
+      "$cfg"|"$cfg"/*)
+        echo "noslop: $cfg is a protected quality gate config — changes cannot be committed." >&2
+        exit 1
+        ;;
+    esac
   done
 done << STAGED
 $(git diff --cached --name-only 2>/dev/null)
@@ -25,5 +53,13 @@ if command -v bd >/dev/null 2>&1; then
   bd hook pre-commit "$@"
 fi
 
+if command -v noslop >/dev/null 2>&1; then
+  noslop check --tier=fast
+fi
+
 # ── lint-staged ──
-npx lint-staged
+if command -v bun >/dev/null 2>&1; then
+  bun x lint-staged
+else
+  npx lint-staged
+fi

@@ -2,10 +2,25 @@
 set -e
 # pre-push: Beads + noslop chained hook
 #
-# 1. Runs bd hooks run pre-push (Beads — skips gracefully if bd not installed)
-# 2. Runs slow gates: typecheck + tests
-#    Uses noslop if available; falls back to npm run typecheck && npm run test.
-#    noslop is optional — the fallback provides equivalent coverage.
+# 1. Runs bd hooks run pre-push (skips gracefully if bd not installed)
+# 2. Runs slow gates: typecheck + test (noslop if available)
+
+is_ci_bypass_set() {
+  case "${SKIP_CI:-}" in
+    [Tt][Rr][Uu][Ee]|[Yy]|[Yy][Ee][Ss]|1) return 0 ;;
+  esac
+  return 1
+}
+
+if is_ci_bypass_set; then
+  echo "Pre-push blocked: SKIP_CI is set."
+  exit 1
+fi
+
+if [ "${HUSKY:-0}" = "0" ] || [ -n "${HUSKY_SKIP_HOOKS:-}" ]; then
+  echo "Pre-push blocked: hook bypass environment variables are forbidden."
+  exit 1
+fi
 
 # ── bd integration ──
 if command -v bd >/dev/null 2>&1; then
@@ -16,7 +31,5 @@ fi
 if command -v noslop >/dev/null 2>&1; then
   noslop check --tier=slow
 else
-  # noslop not installed — running equivalent gates directly.
-  # Install noslop globally for the full experience: npm install -g @45ck/noslop
   npm run typecheck && npm run test
 fi

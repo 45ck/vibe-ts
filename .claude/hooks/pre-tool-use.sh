@@ -14,6 +14,23 @@ if [[ "$input" == *"SKIP_CI"* ]] || [[ "$input" == *"[skip ci]"* ]]; then
   exit 1
 fi
 
+# Block hook bypass environment overrides.
+if [[ "$input" == *"HUSKY=0"* ]] || [[ "$input" == *"HUSKY_SKIP_HOOKS"* ]] || [[ "$input" == *"SKIP_CI="* ]]; then
+  echo "ERROR: hook bypass environment variables are forbidden. Quality gates are non-negotiable."
+  exit 1
+fi
+
+# Block explicit destructive push/reset commands that can bypass branch safety.
+if [[ "$input" == *"git push --force"* ]] || [[ "$input" == *"git push --force-with-lease"* ]] || [[ "$input" == *"git push -f "* ]] || [[ "$input" == *"git push -f"* ]]; then
+  echo "ERROR: Force push is forbidden. Use normal collaborative sync instead."
+  exit 1
+fi
+
+if [[ "$input" == *"git reset --hard"* ]]; then
+  echo "ERROR: git reset --hard is forbidden. Use safer history-preserving alternatives."
+  exit 1
+fi
+
 # Block ad-hoc eslint invocations that bypass the npm run lint wrapper.
 # All linting must go through: npm run lint or npm run lint:fix
 if [[ "$input" =~ (^|[[:space:]])eslint([[:space:]]|$) ]]; then
@@ -23,8 +40,8 @@ fi
 
 # Block editing protected files
 tool="${CLAUDE_TOOL_NAME:-}"
-protected_configs="eslint\.config\.mjs|vitest\.config\.ts|\.dependency-cruiser\.cjs|tsconfig\.json|tsconfig\.build\.json|\.prettierrc|cspell\.json"
-protected_infra="\.beads/hooks/|\.github/workflows/|\.claude/settings\.json|\.claude/hooks/"
+protected_configs="eslint\\.config\\.mjs|vitest\\.config\\.ts|\\.dependency-cruiser\\.cjs|tsconfig\\.json|tsconfig\\.build\\.json|\\.prettierrc|cspell\\.json"
+protected_infra="\\.beads/hooks/|\\.github/workflows/|\\.claude/settings\\.json|\\.claude/hooks/"
 if [[ "$tool" == "Edit" || "$tool" == "Write" ]]; then
   if echo "$input" | grep -qE "$protected_configs"; then
     echo "ERROR: Modifying quality config files (ESLint, Vitest, dependency-cruiser, tsconfig, Prettier, cspell) is forbidden."
