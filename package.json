@@ -61,7 +61,7 @@
     "template:create": "node scripts/bootstrap/create-template.mjs",
     "admin:branch-protection": "node scripts/admin/ensure-branch-protection.mjs",
     "admin:branch-protection:apply": "node scripts/admin/ensure-branch-protection.mjs --apply",
-    "prepare": "husky && git rev-parse --git-dir >/dev/null 2>&1 && git config core.hooksPath .beads/hooks || true"
+    "prepare": "node scripts/bootstrap/prepare-hooks.mjs"
   },
   "bin": {
     "create-vibets": "scripts/agent/spawn-team.mjs",
