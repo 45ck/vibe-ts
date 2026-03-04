@@ -28,6 +28,7 @@ if (settingsText) {
       'Bash(*HUSKY=0*)',
       'Bash(*HUSKY_SKIP_HOOKS=*)',
       'Bash(*SKIP_CI=*)',
+      'Bash(*core.hooksPath*)',
     ];
     for (const rule of requiredDeny) {
       if (!deny.has(rule)) {
@@ -81,6 +82,7 @@ if (preTool) {
     'SKIP_CI',
     'HUSKY=0',
     'HUSKY_SKIP_HOOKS',
+    'core.hooksPath',
     'eslint',
     'git push --force',
     'git push -f',
@@ -133,6 +135,11 @@ function runHookSmoke() {
     { name: 'commit-short', input: 'git commit -n', expectError: true },
     { name: 'skip-ci-env', input: 'echo SKIP_CI=true', expectError: true },
     { name: 'skip-ci-assign', input: 'SKIP_CI=1 npm run ci', expectError: true },
+    {
+      name: 'disable-hooks',
+      input: 'git -c core.hooksPath=/tmp/hooks commit --message "bypass"',
+      expectError: true,
+    },
     { name: 'skip-husky', input: 'HUSKY=0 git commit --message "skip test"', expectError: true },
     {
       name: 'skip-husky-hooks',

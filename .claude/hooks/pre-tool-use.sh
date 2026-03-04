@@ -20,6 +20,12 @@ if [[ "$input" == *"HUSKY=0"* ]] || [[ "$input" == *"HUSKY_SKIP_HOOKS"* ]] || [[
   exit 1
 fi
 
+# Block direct hook-path disabling commands.
+if [[ "$input" == *"core.hooksPath"* ]] || [[ "$input" == *" --no-verify "* ]] || [[ "$input" == *"-c core.hooksPath"* ]]; then
+  echo "ERROR: Disabling hook execution via git core.hooksPath is forbidden."
+  exit 1
+fi
+
 # Block explicit destructive push/reset commands that can bypass branch safety.
 if [[ "$input" == *"git push --force"* ]] || [[ "$input" == *"git push --force-with-lease"* ]] || [[ "$input" == *"git push -f "* ]] || [[ "$input" == *"git push -f"* ]]; then
   echo "ERROR: Force push is forbidden. Use normal collaborative sync instead."
