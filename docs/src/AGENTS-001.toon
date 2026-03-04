@@ -1,0 +1,16 @@
+id: AGENTS-001
+kind: AGENTS
+target: AGENTS.md
+title: AGENTS Instructions Source
+status: accepted
+scope: platform
+owner: Repository Governance
+date: 2026-03-04
+tags[2]: agents,governance
+sections[6]{title,body}:
+  Purpose,"Define repository governance for AI agents and autonomous workflows."
+  Core principles,"- Preserve architecture boundaries.\n- Keep generated documentation in sync.\n- Prefer deterministic, checkable changes."
+  Required workflow,"1. Read current task context.\n2. Confirm docs source changes with `docs/src`.\n3. Run `npm run docs:generate`.\n4. Ensure CI checks pass before merging."
+  Security posture,"Do not allow hook bypasses (`SKIP_CI`, `--no-verify`, `HUSKY=0`, `HUSKY_SKIP_HOOKS`, `--force` etc.)."
+  Quality contract,"Pull requests must pass `npm run ci`, `npm run quality`, and `npm run docs:check`.\nCI is the authority."
+  Human handoff,"For ambiguous or high-risk policy changes, require explicit user consent and include a clear summary in issue notes."

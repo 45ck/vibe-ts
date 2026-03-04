@@ -1,0 +1,12 @@
+id: AGENTS-001
+kind: AGENTS
+target: AGENTS.md
+title: AGENTS Instructions Source
+status: draft
+scope: platform
+owner: Repository Governance
+date: 2026-03-04
+tags[2]: agents,governance
+sections[2]{title,body}:
+  Governance,"Document repository-level collaboration and guardrail expectations."
+  Documentation Policy,"All `docs/src/*.toon` sources should be treated as canonical and synced via docs:generate."

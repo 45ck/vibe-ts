@@ -1,0 +1,38 @@
+# Agent planning and documentation policy
+
+> Generated from `docs/src/POLICY-002.toon`
+
+- **id**: POLICY-002
+- **kind**: POLICY
+- **status**: accepted
+- **scope**: engineering
+- **owner**: Engineering
+- **date**: 2026-03-01
+- **canonicalKey**: vibe-ts-policy-agent-planning
+- **tags**: policy, agents, documentation
+- **dependsOn**: POLICY-001
+- **supersedes**:
+- **supersededBy**:
+- **conflictsWith**:
+
+## Sections
+
+### Spec-First Requirement
+
+Agents must not begin implementation of a feature without a validated artifact in docs/. A Beads issue must reference a TOON artifact id in its specRef field. Implementing from memory or from a prose description alone is prohibited.
+
+### Artifact Kinds
+
+New features require a PRD or SRD. Architecture decisions require an ADR. Cross-cutting concerns require a POLICY. Domain model changes require a DOMAINTREE update. User workflows require a JOURNEY.
+
+### Validation
+
+Agents must run npm run docs:check before starting work and again before opening a PR. A failing check means the spec is invalid and work should not proceed. The docs:check script validates generated markdown output and runs agent-docs consistency checks.
+
+### Generated Docs
+
+Agents must run npm run docs:generate after any artifact change to keep `docs/` and root public docs in sync with `docs/src` sources.
+
+### Hallucination Prevention
+
+If an agent cannot find a TOON artifact for a task it must stop and ask the user to create one. Proceeding from memory about what a feature should do is explicitly prohibited.

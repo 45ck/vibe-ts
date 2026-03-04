@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "sourceExtension": ".toon",
-  "sourceRoots": ["docs"],
+  "sourceRoots": ["docs/src"],
   "ignorePaths": [
     "node_modules",
     ".git",
@@ -20,7 +20,7 @@
     "reports"
   ],
   "generated": {
-    "markdownRoot": "generated",
+    "markdownRoot": "docs",
     "allowMdOnlyWhenGenerated": true,
     "indexTitle": "vibe-ts Docs Index",
     "manifestPath": ".agent-docs/manifest.json",
@@ -28,9 +28,18 @@
   },
   "markdownPolicy": {
     "mode": "warn",
-    "allowInGeneratedPaths": ["generated", "docs/generated"]
+    "allowInGeneratedPaths": ["docs", "generated", "docs/generated"]
   },
   "kindDefaults": {
+    "README": {
+      "requiredStatus": ["accepted", "draft", "proposed", "rejected", "open"]
+    },
+    "CLAUDE": {
+      "requiredStatus": ["accepted", "draft", "proposed", "rejected", "open"]
+    },
+    "AGENTS": {
+      "requiredStatus": ["accepted", "draft", "proposed", "rejected", "open"]
+    },
     "ADR": {
       "requiredStatus": [
         "accepted",

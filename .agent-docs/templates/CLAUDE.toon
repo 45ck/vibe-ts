@@ -1,0 +1,12 @@
+id: CLAUDE-001
+kind: CLAUDE
+target: CLAUDE.md
+title: Claude Instructions Source
+status: draft
+scope: platform
+owner: AI Operations
+date: 2026-03-04
+tags[2]: claude,instructions
+sections[2]{title,body}:
+  Core Rules,"Use the quality gates, architecture boundaries, and hook-protection policy as hard constraints."
+  Workflow,"Read AGENT_LOOP.md, check docs:check before implementation, and run docs:generate when artifact sources change."

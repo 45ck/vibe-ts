@@ -1,0 +1,18 @@
+id: CLAUDE-001
+kind: CLAUDE
+target: CLAUDE.md
+title: Project Rules
+status: accepted
+scope: platform
+owner: AI Operations
+date: 2026-03-04
+tags[2]: assistant,rules
+sections[8]{title,body}:
+  Quick reference,"Quality gate: `npm run ci` (run before claiming work complete)."
+  "Tests","Run `npm run test` or `npm run test:watch` for feedback. Use `npm run test:coverage` before PR."
+  "Monorepo structure","This repo uses npm workspaces (`packages/*`, `apps/*`)."
+  "Rules","- Domain code must have zero external dependencies (except shared primitives).\n- Use branded primitives for IDs.\n- No weakening of ESLint/Prettier/TypeScript/Vitest/dependency-cruiser rules."
+  "Architecture","Dependency flow is inward only.\n- Domain depends only on `@repo/shared`.\n- Application depends on domain and ports.\n- Infrastructure implements ports.\n- Presentation depends on application, domain, infrastructure."
+  "Testing","Use mutation testing and coverage thresholds in CI. Tests should validate behavior, not just line execution."
+  "Work tracking","Use `bd` and `agent` commands for work tracking and handoffs."
+  "Documentation","Keep `.toon` artifacts in `docs/src` authoritative; regenerate before opening PRs."

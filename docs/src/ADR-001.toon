@@ -1,0 +1,18 @@
+id: ADR-001
+kind: ADR
+title: Domain-Driven Design with enforced layer boundaries
+status: accepted
+scope: architecture
+owner: Engineering
+date: 2026-03-01
+canonicalKey: vibe-ts-adr-ddd-layers
+tags[3]: architecture,ddd,boundaries
+dependsOn[0]:
+supersedes[0]:
+supersededBy[0]:
+conflictsWith[0]:
+sections[4]{title,body}:
+  Context,AI agents working autonomously on a codebase need clear structural constraints to prevent hallucinated dependencies and layer violations. Without enforced boundaries agents may wire infrastructure concerns directly into domain logic.
+  Decision,Adopt a four-layer DDD architecture enforced by dependency-cruiser. Layers are domain application infrastructure and presentation. Domain has zero external dependencies. Application depends only on domain and port interfaces. Infrastructure implements ports. Presentation may depend on all layers.
+  Alternatives,A flat src structure was rejected because agents have no signal when they violate separation of concerns. A hexagonal ports-and-adapters pattern without layer names was rejected as harder to explain in prompts.
+  Consequences,Every pull request runs npm run depcruise in CI. Violations fail the build. Agents receive an architecture report via the architecture-guard skill before starting any feature work.

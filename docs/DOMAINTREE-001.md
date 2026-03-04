@@ -1,0 +1,42 @@
+# Core domain model for vibe-ts template
+
+> Generated from `docs/src/DOMAINTREE-001.toon`
+
+- **id**: DOMAINTREE-001
+- **kind**: DOMAINTREE
+- **status**: accepted
+- **scope**: domain
+- **owner**: Engineering
+- **date**: 2026-03-01
+- **canonicalKey**: vibe-ts-domain-core
+- **tags**: domain, model
+- **dependsOn**:
+- **supersedes**:
+- **supersededBy**:
+- **conflictsWith**:
+
+## Sections
+
+### Root Conventions
+
+All domain entities use branded ID types defined in src/domain/primitives/index.ts. Brand<T> wraps a primitive to prevent accidental substitution of one ID type for another at compile time.
+
+### Entity Pattern
+
+Entities are plain TypeScript types with a branded id field. They live in src/domain/. They have zero imports from application infrastructure or presentation layers.
+
+### Value Object Pattern
+
+Value objects are immutable typed records. They have no id field. They are used for attributes that have meaning only as a whole such as EmailAddress or DateRange.
+
+### Port Pattern
+
+Ports are interfaces that live in src/application/ports/. They define what the domain needs from the outside world without knowing how it is implemented. Infrastructure provides concrete implementations.
+
+### Aggregate Pattern
+
+An aggregate is a cluster of entities and value objects treated as a single unit for data changes. The aggregate root is the only entry point for external modification.
+
+### Sample Entities
+
+The template ships with a Greeting entity in src/domain/greeting/. This is example code and must be deleted when starting a real project. Replace with your own domain entities following the same conventions.

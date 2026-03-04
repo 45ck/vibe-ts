@@ -19,12 +19,24 @@ const agentNames = parseCsvList(String(args['--agents'] || ''));
 const showReadyLimit = Number(args['--ready'] || 12);
 
 function readDocs() {
-  const docsRoot = path.join(root, 'docs');
-  if (!fs.existsSync(docsRoot)) return [];
-  return fs
-    .readdirSync(docsRoot)
-    .filter((name) => name.endsWith('.toon'))
-    .sort((a, b) => a.localeCompare(b));
+  const docsDir = path.join(root, 'docs', 'src');
+  if (!fs.existsSync(docsDir)) return [];
+  const docs = [];
+  const walk = (current) => {
+    for (const entry of fs
+      .readdirSync(current, { withFileTypes: true })
+      .sort((a, b) => a.name.localeCompare(b.name))) {
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.isFile() && entry.name.endsWith('.toon')) {
+        docs.push(path.relative(path.join(root, 'docs'), full).replace(/\\/g, '/'));
+      }
+    }
+  };
+  walk(docsDir);
+  docs.sort((a, b) => a.localeCompare(b));
+  return docs;
 }
 
 function readAgents() {

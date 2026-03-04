@@ -1,0 +1,13 @@
+id: README-001
+kind: README
+target: README.md
+title: Project README Source
+status: draft
+scope: platform
+owner: Engineering
+date: 2026-03-04
+tags[2]: readme,documentation
+sections[3]{title,body}:
+  Overview,"Public project documentation generated from .toon source."
+  Setup,"Install, configure, and get quality-first workflows running."
+  Quality Gates,"Run docs:generate and docs:check whenever documentation source changes."

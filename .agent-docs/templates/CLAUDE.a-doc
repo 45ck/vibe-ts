@@ -1,0 +1,21 @@
+{
+  "id": "CLAUDE-001",
+  "kind": "CLAUDE",
+  "title": "Claude Instructions Source",
+  "status": "accepted",
+  "scope": "platform",
+  "owner": "AI Operations",
+  "date": "2026-03-04",
+  "target": "CLAUDE.md",
+  "tags": ["claude", "assistant", "instructions"],
+  "sections": [
+    {
+      "title": "Core Rules",
+      "body": "Use `npm run ci` quality gate and do not bypass hooks."
+    },
+    {
+      "title": "Preferred Workflow",
+      "body": "Prefer editing source docs in `docs/src` and regenerate target docs."
+    }
+  ]
+}
