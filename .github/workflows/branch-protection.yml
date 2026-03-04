@@ -42,24 +42,19 @@ jobs:
           BRANCH="${{ github.event.inputs.branch }}"
           CONTEXTS="${{ github.event.inputs.contexts }}"
           APPROVALS="${{ github.event.inputs.approvals }}"
+          EVENT_NAME="${{ github.event_name }}"
+          APPLY="${{ github.event.inputs.apply }}"
 
-          COMMAND="npm run admin:branch-protection -- --repo ${GITHUB_REPOSITORY}"
+          COMMAND_ARGS=(--repo "$GITHUB_REPOSITORY")
+          if [ -n "$BRANCH" ]; then COMMAND_ARGS+=(--branch "$BRANCH"); fi
+          if [ -n "$CONTEXTS" ]; then COMMAND_ARGS+=(--contexts "$CONTEXTS"); fi
+          if [ -n "$APPROVALS" ]; then COMMAND_ARGS+=(--approvals "$APPROVALS"); fi
 
-          if [ -n "$BRANCH" ]; then
-            COMMAND="$COMMAND --branch $BRANCH"
-          fi
-          if [ -n "$CONTEXTS" ]; then
-            COMMAND="$COMMAND --contexts $CONTEXTS"
-          fi
-          if [ -n "$APPROVALS" ]; then
-            COMMAND="$COMMAND --approvals $APPROVALS"
-          fi
-
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.apply }}" = "true" ]; then
-            COMMAND="$COMMAND --apply"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$APPLY" = "true" ]; then
+            COMMAND_ARGS+=(--apply)
           fi
 
-          echo "Running: $COMMAND"
-          eval "$COMMAND"
+          echo "Running: npm run admin:branch-protection -- ${COMMAND_ARGS[*]}"
+          npm run admin:branch-protection -- "${COMMAND_ARGS[@]}"
         env:
           GH_TOKEN: ${{ github.token }}

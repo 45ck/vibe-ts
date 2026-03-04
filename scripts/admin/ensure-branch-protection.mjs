@@ -194,14 +194,18 @@ function parseContexts(raw) {
 }
 
 async function callGitHub(path, options = {}) {
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': API_VERSION,
+    'User-Agent': 'vibe-ts-branch-protection',
+  };
+  if (options.body) {
+    headers['Content-Type'] = 'application/json';
+  }
   const result = await fetch(`${GH_API_BASE}${path}`, {
     method: options.method ?? 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': API_VERSION,
-      'User-Agent': 'vibe-ts-branch-protection',
-    },
+    headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
 
