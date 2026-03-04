@@ -58,12 +58,14 @@
     "agent:spawn": "node scripts/agent/spawn-team.mjs",
     "agent:verify-hooks": "node scripts/agent/verify-guardrails.mjs",
     "agent:verify": "node scripts/agent/verify-guardrails.mjs",
+    "template:create": "node scripts/bootstrap/create-template.mjs",
     "admin:branch-protection": "node scripts/admin/ensure-branch-protection.mjs",
     "admin:branch-protection:apply": "node scripts/admin/ensure-branch-protection.mjs --apply",
     "prepare": "husky && git rev-parse --git-dir >/dev/null 2>&1 && git config core.hooksPath .beads/hooks || true"
   },
   "bin": {
-    "create-vibets": "scripts/agent/spawn-team.mjs"
+    "create-vibets": "scripts/agent/spawn-team.mjs",
+    "vibe-ts": "scripts/bootstrap/create-template-cli.js"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs,cjs}": [

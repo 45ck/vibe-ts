@@ -18,12 +18,16 @@ Quality-first TypeScript template for AI-assisted development. DDD architecture 
 
 ### Quick setup
 
-1. Use this template.
-2. Replace `vibe-ts` with your project name in package metadata.
-3. Run `npm install`.
-4. Run `npm run ci` before merging.
-5. Remove sample domain/application/infrastructure files.
-6. Start building in `apps/` and `packages/`.
+1. Use this template repository.
+2. Install from this repo in one step:
+   - `npx --yes --package git+https://github.com/45ck/vibe-ts.git vibe-ts <new-project-directory> --name <project-name>`
+   - `npx --yes --package git+https://github.com/45ck/vibe-ts.git vibe-ts <new-project-directory> --name <project-name> --scope <scope>`
+3. Or run locally from this repo:
+   - `npm run template:create -- <new-project-directory> --name <project-name>`.
+4. Enter the new folder and run `npm install` if not already completed by the bootstrap step.
+5. Replace remaining template references with your project-specific metadata.
+6. Run `npm run ci` before merging.
+7. Remove sample domain/application/infrastructure files.
 
 ### Architecture
 

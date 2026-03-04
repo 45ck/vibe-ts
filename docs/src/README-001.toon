@@ -9,7 +9,7 @@ date: 2026-03-04
 tags[3]: template,quality,ai-assist
 sections[6]{title,body}:
   Overview,"Quality-first TypeScript template for AI-assisted development. DDD architecture with enforced boundaries and mutation testing."
-  Quick setup,"1. Use this template.\n2. Replace `vibe-ts` with your project name in package metadata.\n3. Run `npm install`.\n4. Run `npm run ci` before merging.\n5. Remove sample domain/application/infrastructure files.\n6. Start building in `apps/` and `packages/`."
+  Quick setup,"1. Use this template repository.\n2. Install from this repo in one step: `npx --yes --package git+https://github.com/45ck/vibe-ts.git vibe-ts <new-project-directory> --name <project-name>`.\n3. Or run locally: `npm run template:create -- <new-project-directory> --name <project-name>`.\n4. Enter the new folder and run `npm install` if not already completed by the bootstrap step.\n5. Replace remaining template metadata with your project-specific values.\n6. Run `npm run ci` before merging.\n7. Remove sample domain/application/infrastructure files."
   Architecture,"The repo is organized by domain layers with enforced dependencies:\n`src/domain`, `src/application`, `src/infrastructure`, `src/presentation` in generated templates.\nDomain has zero external dependencies except shared foundations."
   Quality gates,"Use `npm run ci` for full checks and `npm run quality` for noslop gates and mutation checks."
   Documentation workflow,"Edit sources in `docs/src/*.toon`, then run `npm run docs:generate` to update generated Markdown docs."
