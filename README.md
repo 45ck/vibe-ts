@@ -36,6 +36,10 @@ Quality-first TypeScript template for AI-assisted development. DDD architecture 
   - Require status checks: `quality`, `guardrails`
   - Disallow force pushes and stale out-of-date branch merges
   - For strict mode, require administrator review and CODEOWNERS approval where appropriate
+- Enforce the same policy from shell/CI with:
+  - `npm run admin:branch-protection` (verify remote protection settings)
+  - `npm run admin:branch-protection:apply -- --repo owner/repo --branch main` (apply and normalize in CI automation)
+    - requires `GH_TOKEN`/`GITHUB_TOKEN` with repository admin permissions on branch protection APIs
 
 ## Architecture
 
