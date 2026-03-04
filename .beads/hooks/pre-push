@@ -17,7 +17,7 @@ if is_ci_bypass_set; then
   exit 1
 fi
 
-if [ "${HUSKY:-0}" = "0" ] || [ -n "${HUSKY_SKIP_HOOKS:-}" ]; then
+if [ "${HUSKY:-}" = "0" ] || [ -n "${HUSKY_SKIP_HOOKS:-}" ]; then
   echo "Pre-push blocked: hook bypass environment variables are forbidden."
   exit 1
 fi

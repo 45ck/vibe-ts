@@ -19,14 +19,14 @@ if is_ci_bypass_set; then
   exit 1
 fi
 
-if [ "${HUSKY:-0}" = "0" ] || [ -n "${HUSKY_SKIP_HOOKS:-}" ]; then
+if [ "${HUSKY:-}" = "0" ] || [ -n "${HUSKY_SKIP_HOOKS:-}" ]; then
   echo "Pre-commit blocked: hook bypass environment variables are forbidden."
   exit 1
 fi
 
 # ── noslop: block commits to protected quality gate configs ──
 # .beads/issues.jsonl is intentionally allowlisted because BD state is updated frequently.
-PROTECTED_CONFIGS=".gitignore .githooks .github .claude .beads/hooks .agent-docs eslint.config.mjs vitest.config.ts .dependency-cruiser.cjs tsconfig.json tsconfig.build.json .prettierrc cspell.json"
+PROTECTED_CONFIGS=".gitignore .githooks .github .claude .beads/hooks .agent-docs eslint.config.mjs vitest.config.ts .dependency-cruiser.cjs tsconfig.json tsconfig.build.json tsconfig.base.json .prettierrc cspell.json"
 ALLOWED_STAGED_EXCEPTIONS=".beads/issues.jsonl .beads/issues.jsonl.lock"
 # Read staged files line-by-line to handle filenames with spaces correctly
 while IFS= read -r staged_file; do
