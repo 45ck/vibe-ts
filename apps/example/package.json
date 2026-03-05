@@ -8,8 +8,8 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "depcruise": "dependency-cruiser --config .dependency-cruiser.cjs --validate --output-type err src",
-    "depgraph": "dependency-cruiser --config .dependency-cruiser.cjs --output-type mermaid src --output-to ../../reports/example-dependency-graph.mmd",
+    "depcruise": "node ../../scripts/quality/run-workspace-depcruise.mjs apps/example validate",
+    "depgraph": "node ../../scripts/quality/run-workspace-depcruise.mjs apps/example graph ../../reports/example-dependency-graph.mmd",
     "mutation": "stryker run"
   }
 }
