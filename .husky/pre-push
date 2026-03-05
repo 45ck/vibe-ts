@@ -1,1 +1,3 @@
-npm run typecheck && npm run test
+#!/usr/bin/env sh
+set -e
+sh ./.beads/hooks/pre-push "$@"

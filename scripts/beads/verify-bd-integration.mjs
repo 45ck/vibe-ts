@@ -112,9 +112,34 @@ check('git core.hooksPath points to .beads/hooks', () => {
   const r = run('git', ['config', 'core.hooksPath'], { cwd: ROOT });
   if (r.status !== 0) return 'git config core.hooksPath not set';
   const val = r.stdout.trim();
-  if (!val.includes('.beads/hooks')) return `core.hooksPath = "${val}", expected .beads/hooks`;
-  console.log(`     → core.hooksPath = ${val}`);
-  return true;
+  if (val.includes('.beads/hooks')) {
+    console.log(`     → core.hooksPath = ${val}`);
+    return true;
+  }
+
+  if (val.includes('.husky/_')) {
+    const delegates = [
+      ['pre-commit', '.beads/hooks/pre-commit'],
+      ['pre-push', '.beads/hooks/pre-push'],
+      ['commit-msg', '.beads/hooks/commit-msg'],
+    ];
+
+    for (const [hookName, expectedTarget] of delegates) {
+      const hookPath = path.join(ROOT, '.husky', hookName);
+      if (!fs.existsSync(hookPath)) {
+        return `core.hooksPath = "${val}" but ${hookPath} is missing`;
+      }
+      const content = fs.readFileSync(hookPath, 'utf8');
+      if (!content.includes(expectedTarget)) {
+        return `core.hooksPath = "${val}" but .husky/${hookName} does not delegate to ${expectedTarget}`;
+      }
+    }
+
+    console.log(`     → core.hooksPath = ${val} (delegates to .beads/hooks)`);
+    return true;
+  }
+
+  return `core.hooksPath = "${val}", expected .beads/hooks or delegated .husky/_`;
 });
 
 check('.beads/hooks/ directory has hook scripts', () => {
