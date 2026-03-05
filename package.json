@@ -58,6 +58,7 @@
     "agent:spawn": "node scripts/agent/spawn-team.mjs",
     "agent:verify-hooks": "node scripts/agent/verify-guardrails.mjs",
     "agent:verify": "node scripts/agent/verify-guardrails.mjs",
+    "guardrails:unlock": "node scripts/guardrails/unlock-protected-config.mjs",
     "template:create": "node scripts/bootstrap/create-template.mjs",
     "admin:branch-protection": "node scripts/admin/ensure-branch-protection.mjs",
     "admin:branch-protection:apply": "node scripts/admin/ensure-branch-protection.mjs --apply",

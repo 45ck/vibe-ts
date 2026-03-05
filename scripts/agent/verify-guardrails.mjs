@@ -113,6 +113,11 @@ if (preCommit) {
   if (!hasHuskyBypassBlock) {
     failures.push('pre-commit hook should block husky bypass environment variables');
   }
+  if (!preCommit.includes('check-protected-config-edit.mjs')) {
+    failures.push(
+      'pre-commit hook should route protected config edits through the maintainer unlock check',
+    );
+  }
 }
 
 const prePush = readText('.beads/hooks/pre-push');
@@ -130,6 +135,12 @@ if (prePush) {
 }
 
 function runHookSmoke() {
+  const bashCheck = spawnSync('bash', ['-lc', 'true'], { encoding: 'utf8' });
+  if (bashCheck.status !== 0) {
+    console.log('Guardrail verification: skipping hook smoke tests because bash is unavailable.');
+    return;
+  }
+
   const checks = [
     { name: 'no-verify', input: 'git commit --no-verify', expectError: true },
     { name: 'commit-short', input: 'git commit -n', expectError: true },

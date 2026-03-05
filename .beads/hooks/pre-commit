@@ -28,6 +28,7 @@ fi
 # .beads/issues.jsonl is intentionally allowlisted because BD state is updated frequently.
 PROTECTED_CONFIGS=".gitignore .githooks .github .claude .beads/hooks .agent-docs eslint.config.mjs vitest.config.ts .dependency-cruiser.cjs tsconfig.json tsconfig.build.json tsconfig.base.json .prettierrc cspell.json"
 ALLOWED_STAGED_EXCEPTIONS=".beads/issues.jsonl .beads/issues.jsonl.lock"
+PROTECTED_EDIT_DETECTED=""
 # Read staged files line-by-line to handle filenames with spaces correctly
 while IFS= read -r staged_file; do
   for exception in $ALLOWED_STAGED_EXCEPTIONS; do
@@ -39,14 +40,18 @@ while IFS= read -r staged_file; do
   for cfg in $PROTECTED_CONFIGS; do
     case "$staged_file" in
       "$cfg"|"$cfg"/*)
-        echo "noslop: $cfg is a protected quality gate config — changes cannot be committed." >&2
-        exit 1
+        PROTECTED_EDIT_DETECTED="$staged_file"
+        break 2
         ;;
     esac
   done
 done << STAGED
 $(git diff --cached --name-only 2>/dev/null)
 STAGED
+
+if [ -n "$PROTECTED_EDIT_DETECTED" ]; then
+  node scripts/guardrails/check-protected-config-edit.mjs "$PROTECTED_EDIT_DETECTED"
+fi
 
 # ── bd integration ──
 if command -v bd >/dev/null 2>&1; then
